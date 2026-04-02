@@ -30,7 +30,7 @@ typedef struct{
     int max_crashes;
     time_t time_window_sec;
     int crash_count;
-    time_t first_start_time;   
+    time_t first_start_time; 
     int fault_level;
     module_type type;
 }PM_Module;
@@ -287,7 +287,7 @@ pid_t read_pid(const char *file) {
 }
 
 int main() {
-    //daemonize();
+    daemonize();
     signal(SIGTERM, handle_signal);
     signal(SIGINT, handle_signal);
 
@@ -325,7 +325,7 @@ int main() {
     while (1) {
         time_t now = time(NULL);
 
-        for (int i = 0; i < num_pms; i++) {
+  /*      for (int i = 0; i < num_pms; i++) {
             if (pms[i].fault_level >= 2) {
                 continue; 
             }
@@ -346,8 +346,8 @@ int main() {
                 pms[i].crash_count++;
                 if(pms[i].crash_count <= pms[i].max_crashes && (uptime <= pms[i].time_window_sec)){
                     log_crash(pms[i].name, pms[i].crash_count, uptime, pms[i].fault_level);
-                    char cmd[64];
-                    sprintf(cmd, "./%s &", pms[i].name);
+                    char cmd[100];
+                    sprintf(cmd, "/home/intern/duong/sfm_read_write_file/%s &", pms[i].name);
                     system(cmd);
                     sleep(1);
                     //cap nhat crash_cnt va crash_time vao file sfm_cur_stt.conf
@@ -360,8 +360,8 @@ int main() {
                     pms[i].crash_count = 0;
                     if(pms[i].fault_level < 2){
                         printf("Module %s Fault level 1\n", pms[i].name);
-                        char cmd[64];
-                        sprintf(cmd, "./%s &", pms[i].name);
+                        char cmd[100];
+                        sprintf(cmd, "/home/intern/duong/sfm_read_write_file/%s &", pms[i].name);
                         system(cmd);
                         sleep(1);
                     }
@@ -371,7 +371,7 @@ int main() {
                 }
             }
         }
-/*
+*/
         for (int i = 0; i < num_pms; i++) {
 
             if (pms[i].fault_level >= 2) {
@@ -385,9 +385,9 @@ int main() {
 
             if (pid <= 0 || !is_alive(pid)) {
 
-                if (pms[i].first_start_time == 0) {
-                    pms[i].first_start_time = now;
-                }
+                if (pms[i].first_start_time == 0){ //cach tot nhat de giu first_start_time khong bị reset
+                    pms[i].first_start_time = now; //khi sfmd restart la luu vao file, roi moi lan sfmd restart
+                }                                  //thi doc file roi gan lai first_start_time bang gia tri luu trong file    
 
                 time_t uptime = now - pms[i].first_start_time;
                 if (uptime > pms[i].time_window_sec) {
@@ -410,14 +410,14 @@ int main() {
                 if (pms[i].fault_level < 2) {
                     log_crash(pms[i].name, pms[i].crash_count, uptime, pms[i].fault_level);
                     printf("Module %s restart\n", pms[i].name);
-                    char cmd[64];
-                    sprintf(cmd, "./%s &", pms[i].name);
+                    char cmd[100];
+                    sprintf(cmd, "/home/intern/duong/sfm_read_write_file/%s &", pms[i].name);
                     system(cmd);
                     sleep(1);
                 }
             }
         }
-*/
+
         pid_t bk_pid = read_pid("/tmp/sfmbkd.pid");
         if (bk_pid <= 0 || !is_alive(bk_pid)) {
             if(first_start_time_sfmbkd == 0){
@@ -426,7 +426,7 @@ int main() {
             int uptime_sfmbkd = now - first_start_time_sfmbkd;
             crash_count_sfmbkd++;
             log_crash("sfmbkd", crash_count_sfmbkd, uptime_sfmbkd, 0);
-            system("./sfmbkd &");
+            system("/home/intern/duong/sfm_read_write_file/sfmbkd &");
             sleep(1);
         }
 

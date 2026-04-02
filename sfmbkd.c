@@ -134,7 +134,7 @@ int main(){
             log_crash("sfmd", crash_count_sfmd, uptime_sfmd);
             printf("SFMD crashed -> restarting by SFMBKD...\n");
             //unlink(STT_FILE);        // Reset toàn bộ khi SFMBKD khởi động lại SFMD
-            system("./sfmd &");
+            system("/home/intern/duong/sfm_read_write_file/sfmd &");
             sleep(1);
         }
         sleep(2);
